@@ -16,7 +16,7 @@ charge_hydrogen = +0.4
 charge_oxygen = -0.8
 bond_length_water = 0.1
 bond_angle_water = 1.88496
-I_water = 1         # moment of inertia of water molecule
+I_water = 1        # moment of inertia of water molecule
 mass_water = 1
 k_electric = 1    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
@@ -65,7 +65,7 @@ def get_net_force_for_a_single_particle(coord, charge):
     
     distances = np.linalg.norm(displacement_vectors, axis=1)
     
-    print (np.max(distances), np.min(distances))
+    #print (np.max(distances), np.min(distances))
     
     temp_LJ_Force = epsilon_LJ * np.sum(
         np.dot(np.diag(48 * sigma_12 / np.power(distances, 14) - 24 * sigma_6 / np.power(distances, 8)),
@@ -84,7 +84,7 @@ def get_net_force_for_a_single_particle(coord, charge):
             displacement_vectors_electric), 
         axis=0)
     
-    print (temp_LJ_Force, temp_electric_Force)
+    #print (temp_LJ_Force, temp_electric_Force)
     
     return temp_LJ_Force + temp_electric_Force
 
@@ -133,6 +133,16 @@ def simulate(num_steps, h_stepsize=0.01):
         configs, velocities = temp_next_configs, temp_next_v
     
     return np.array(configs_list), np.array(velocities_list)
+
+my_positions, my_velocities = simulate(500)
+
+plt.figure(1)
+plt.scatter(coords_particles[:,0], coords_particles[:,1])
+#plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1])
+plt.scatter(my_positions[:,0], my_positions[:,1])
+plt.show()
+
+print(my_positions)
 
 def clustering():
     pass
