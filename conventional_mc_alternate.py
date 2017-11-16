@@ -20,7 +20,7 @@ I_water = 1        # moment of inertia of water molecule
 mass_water = 1
 k_electric = 1    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
-epsilon_LJ = 1; sigma_LJ = 0.2  # they should be different for different particles
+epsilon_LJ = 0.5; sigma_LJ = 0.2  # they should be different for different particles
 
 #######################################################################
 # these are helper global variables
@@ -134,12 +134,13 @@ def simulate(num_steps, h_stepsize=0.01):
     
     return np.array(configs_list), np.array(velocities_list)
 
-my_positions, my_velocities = simulate(500)
+my_positions, my_velocities = simulate(1100)
 
-plt.figure(1)
-plt.scatter(coords_particles[:,0], coords_particles[:,1])
-#plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1])
-plt.scatter(my_positions[:,0], my_positions[:,1])
+plt.figure(1,dpi=100)
+plt.scatter(coords_particles[:,0], coords_particles[:,1],c="orange")
+plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1], c="brown", s=400)
+plt.scatter(my_positions[:,0], my_positions[:,1], alpha=0.3,s=10,c="teal")
+plt.scatter(my_positions[-1][0],my_positions[-1][1],alpha=0.8,s=5500, c="teal")
 plt.show()
 
 print(my_positions)
