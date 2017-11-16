@@ -20,7 +20,13 @@ I_water = 1        # moment of inertia of water molecule
 mass_water = 1
 k_electric = 1    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
+<<<<<<< HEAD:conventional_mc_alternate.py
 epsilon_LJ = 0.5; sigma_LJ = 0.2  # they should be different for different particles
+=======
+epsilon_LJ = 1; sigma_LJ = 0.2  # they should be different for different particles
+random_force_strength = 2.0
+const_force = 0.0  # constant force that drives water molecule towards the right
+>>>>>>> 1820d6354194d43e7b3793cab2c82d86d514aa7d:conventional_mc.py
 
 #######################################################################
 # these are helper global variables
@@ -86,7 +92,7 @@ def get_net_force_for_a_single_particle(coord, charge):
     
     #print (temp_LJ_Force, temp_electric_Force)
     
-    return temp_LJ_Force + temp_electric_Force
+    return temp_LJ_Force + temp_electric_Force + random_force_strength * np.random.normal(size=2) + np.array([const_force, 0])
 
 def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta (define configurations)
     relative_coords_hydrogen_oxygen = np.array([
