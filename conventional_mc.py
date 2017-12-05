@@ -5,7 +5,7 @@ Created on Wed Nov 15 15:45:58 2017
 @author: Alexandra
 """
 
-import numpy as np, subprocess
+import numpy as np, subprocess, itertools
 import matplotlib.pyplot as plt
 
 ###################   global parameters   ############################
@@ -154,10 +154,7 @@ def get_poorly_sampled_points(list_of_points, range_of_each_dim,
     dimensionality = len(list_of_points[0])
     list_of_points = list(zip(*list_of_points))
     assert (len(list_of_points) == dimensionality)
-
-    temp_hist_range = [[min(item) - (max(item) - min(item)) / (num_of_bins - 2), max(item) + (max(item) - min(item)) / (num_of_bins - 2)]\
-                        for item in list_of_points]
-    hist_matrix, edges = np.histogramdd(list_of_points, bins=num_of_bins * np.ones(dimensionality), range=temp_hist_range)
+    hist_matrix, edges = np.histogramdd(list_of_points, bins= num_of_bins * np.ones(dimensionality), range = range_of_each_dim)
 
     # following is the main algorithm to find boundary and holes
     # simply find the points that are lower than average of its 4 neighbors
