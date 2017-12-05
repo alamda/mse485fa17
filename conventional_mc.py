@@ -143,13 +143,12 @@ def simulate(num_steps, h_stepsize=0.01):
 def get_poorly_sampled_points(list_of_points, range_of_each_dim,
                             num_of_bins = 10,
                             num_of_boundary_points = 10,
-                            preprocessing = True,
+                            preprocessing_func = None,
                             auto_range_for_histogram = False,   # set the range of histogram based on min,max values in each dimension
                             ):
     """
     this function is copied from https://github.com/weiHelloWorld/accelerated_sampling_with_autoencoder/blob/master/MD_simulation_on_alanine_dipeptide/current_work/src/molecule_spec_sutils.py#L360
     for finding poorly sampled region
-    :param preprocessing: if True, then more weight is not linear, this would be better based on experience
     """
     dimensionality = len(list_of_points[0])
     list_of_points = list(zip(*list_of_points))
@@ -158,8 +157,8 @@ def get_poorly_sampled_points(list_of_points, range_of_each_dim,
 
     # following is the main algorithm to find boundary and holes
     # simply find the points that are lower than average of its 4 neighbors
-    if preprocessing:
-        hist_matrix = np.array(map(lambda x: map(lambda y: - np.exp(- y), x), hist_matrix))   # preprocessing process
+    if not preprocessing_func is None:
+        hist_matrix = np.array(map(lambda x: map(preprocessing_func, x), hist_matrix))   # preprocessing process
 
     diff_with_neighbors = np.zeros(hist_matrix.shape)
     temp_1 = [list(range(item)) for item in hist_matrix.shape]
