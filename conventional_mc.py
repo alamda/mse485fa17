@@ -132,9 +132,75 @@ def simulate(num_steps, h_stepsize=0.01):
         
         temp_next_v = VerletNextV(velocities, temp_acceleration, temp_next_acceleration, h_stepsize)
         
-        configs, velocities = temp_next_configs, temp_next_v
+        if 0 < temp_next_configs[0] < L_channel and 0 < temp_next_configs[1] < R_channel:
+            configs, velocities = temp_next_configs, temp_next_v
+        else:  # restart when it goes out of the channel
+            configs, velocities = init_config()
     
     return np.array(configs_list), np.array(velocities_list)
+
+def get_poorly_sampled_points(list_of_points, range_of_each_dim,
+                            num_of_bins = 10,
+                            num_of_boundary_points = 10,
+                            preprocessing = True,
+                            auto_range_for_histogram = False,   # set the range of histogram based on min,max values in each dimension
+                            ):
+    """
+    this function is copied from https://github.com/weiHelloWorld/accelerated_sampling_with_autoencoder/blob/master/MD_simulation_on_alanine_dipeptide/current_work/src/molecule_spec_sutils.py#L360
+    for finding poorly sampled region
+    :param preprocessing: if True, then more weight is not linear, this would be better based on experience
+    """
+    dimensionality = len(list_of_points[0])
+    list_of_points = list(zip(*list_of_points))
+    assert (len(list_of_points) == dimensionality)
+
+    temp_hist_range = [[min(item) - (max(item) - min(item)) / (num_of_bins - 2), max(item) + (max(item) - min(item)) / (num_of_bins - 2)]\
+                        for item in list_of_points]
+    hist_matrix, edges = np.histogramdd(list_of_points, bins=num_of_bins * np.ones(dimensionality), range=temp_hist_range)
+
+    # following is the main algorithm to find boundary and holes
+    # simply find the points that are lower than average of its 4 neighbors
+    if preprocessing:
+        hist_matrix = np.array(map(lambda x: map(lambda y: - np.exp(- y), x), hist_matrix))   # preprocessing process
+
+    diff_with_neighbors = np.zeros(hist_matrix.shape)
+    temp_1 = [list(range(item)) for item in hist_matrix.shape]
+    for grid_index in itertools.product(*temp_1):
+        neighbor_index_list = [(np.array(grid_index) + temp_2).astype(int) for temp_2 in np.eye(dimensionality)]
+        neighbor_index_list += [(np.array(grid_index) - temp_2).astype(int) for temp_2 in np.eye(dimensionality)]
+        neighbor_index_list = filter(lambda x: np.all(x >= 0) and np.all(x < num_of_bins), neighbor_index_list)
+        # print "grid_index = %s" % str(grid_index)
+        # print "neighbor_index_list = %s" % str(neighbor_index_list)
+        diff_with_neighbors[tuple(grid_index)] = hist_matrix[tuple(grid_index)] - np.average(
+            [hist_matrix[tuple(temp_2)] for temp_2 in neighbor_index_list]
+        )
+
+    # get grid centers
+    edge_centers = map(lambda x: 0.5 * (np.array(x[1:]) + np.array(x[:-1])), edges)
+    grid_centers = np.array(list(itertools.product(*edge_centers)))  # "itertools.product" gives Cartesian/direct product of several lists
+    grid_centers = np.reshape(grid_centers, np.append(num_of_bins * np.ones(dimensionality), dimensionality).astype(int))
+
+    potential_centers = []
+    # now sort these grids (that has no points in it)
+    # based on total number of points in its neighbors
+    
+    temp_seperate_index = []
+
+    for _ in range(dimensionality):
+        temp_seperate_index.append(list(range(num_of_bins)))
+
+    index_of_grids = list(itertools.product(
+                    *temp_seperate_index
+                    ))
+
+    index_of_grids =  filter(lambda x: diff_with_neighbors[x] < 0, index_of_grids)     # only apply to grids with diff_with_neighbors value < 0
+    sorted_index_of_grids = sorted(index_of_grids, key = lambda x: diff_with_neighbors[x]) # sort based on histogram, return index values
+
+    for index in sorted_index_of_grids[:num_of_boundary_points]:  # note index can be of dimension >= 2
+        temp_potential_center = map(lambda x: round(x, 2), grid_centers[index])
+        potential_centers.append(temp_potential_center)
+
+    return potential_centers
 
 my_positions, my_velocities = simulate(500)
 
