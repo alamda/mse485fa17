@@ -203,15 +203,17 @@ def get_poorly_sampled_points(list_of_points, range_of_each_dim,
 
     return potential_centers
 
-my_positions, my_velocities = simulate(500)
+if __name__ == '__main__':
+    my_positions, my_velocities = simulate(500)
 
-plt.figure(1)
-plt.scatter(coords_particles[:,0], coords_particles[:,1])
-#plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1])
-plt.scatter(my_positions[:,0], my_positions[:,1])
-plt.show()
+    plt.figure(1)
+    plt.scatter(coords_particles[:,0], coords_particles[:,1])
+    #plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1])
+    plt.scatter(my_positions[:,0], my_positions[:,1])
+    plt.show()
 
-print(my_positions)
+    print(my_positions)
+    
 
 def clustering():
     pass
