@@ -18,11 +18,11 @@ bond_length_water = 0.1
 bond_angle_water = 1.88496
 I_water = 1        # moment of inertia of water molecule
 mass_water = 1
-k_electric = 1    # electric constant, equal to (1 / (4 \pi \epsilon_0))
+k_electric = 100    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
 epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
-random_force_strength = 2.0
-const_force = 0.0  # constant force that drives water molecule towards the right
+random_force_strength = 20.0
+const_force = 20.0  # constant force that drives water molecule towards the right
 
 #######################################################################
 # these are helper global variables
@@ -86,10 +86,10 @@ def get_net_force_for_a_single_particle(coord, charge):
             displacement_vectors_electric), 
         axis=0)
     
-    #print (temp_LJ_Force, temp_electric_Force)
-    
+    # print charge, temp_LJ_Force, temp_electric_Force
     return temp_LJ_Force + temp_electric_Force + random_force_strength * np.random.normal(size=2) + np.array([const_force, 0]) \
             + np.array([1000000, 0]) * charge
+
 
 def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta (define configurations)
     relative_coords_hydrogen_oxygen = np.array([
