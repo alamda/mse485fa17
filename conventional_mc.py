@@ -235,18 +235,19 @@ def clustering(positions, n_clusters):
     return kmeans.labels_
 
 def getNewPos(Pos,nbins):
-    dimensionality = len(Pos)
-    Pos = list(zip(*Pos))
-    hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0)
-    maxnumber = hist_matrix.sum()
+    Pos = list(zip(*Pos)) #make it a list
+    hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
+    maxnumber = hist_matrix.max()
     newhist_matrix = np.copy(hist_matrix)
     newhist_matrix -= maxnumber
     newhist_matrix = -newhist_matrix
     summn = newhist_matrix.sum()
-    prob = newhist_matrix/summn
+    prob = newhist_matrix/summn #building prob as n_i/all_n
     edges = np.array(edges)
 
     for i in range(10000):
+        # metropolis scan with prob[x][y][theta] as acceptance rate
+        # numbers need to be altered, to see how many "jumps" we need during the simulation
         x = np.random.randint(0,nbins)
         y = np.random.randint(0,nbins)
         theta = np.random.randint(0,nbins)
