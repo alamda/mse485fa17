@@ -22,7 +22,7 @@ k_electric = 100    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
 epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
 random_force_strength = 20.0
-const_force = 20.0  # constant force that drives water molecule towards the right
+const_force = 200.0  # constant force that drives water molecule towards the right
 
 #######################################################################
 # these are helper global variables
@@ -42,9 +42,9 @@ mass_vector = np.array([mass_water, mass_water, I_water])
 
 def init_config():
     # generate random (x,y,theta, v_x, v_y, omega)
-    temp_x = np.random.uniform(low=0.4 * L_channel, high=0.6 * L_channel) #I made it closer to the center
+    temp_x = np.random.uniform(low=0 * L_channel, high=0 * L_channel) #I made it closer to the center
     
-    temp_y = np.random.uniform(low=0.4 * R_channel, high=0.6 * R_channel) #I made it closer to the center
+    temp_y = np.random.uniform(low=0 * R_channel, high=1 * R_channel) #I made it closer to the center
     
     temp_theta = np.random.uniform(high= 2 * np.pi)
     
@@ -140,64 +140,6 @@ def simulate(num_steps, h_stepsize=0.01):
     
     return np.array(configs_list), np.array(velocities_list)
 
-def get_poorly_sampled_points(list_of_points, range_of_each_dim,
-                            num_of_bins = 10,
-                            num_of_boundary_points = 10,
-                            preprocessing_func = None,
-                            auto_range_for_histogram = False,   # set the range of histogram based on min,max values in each dimension
-                            ):
-    """
-    this function is copied from https://github.com/weiHelloWorld/accelerated_sampling_with_autoencoder/blob/master/MD_simulation_on_alanine_dipeptide/current_work/src/molecule_spec_sutils.py#L360
-    for finding poorly sampled region
-    """
-    dimensionality = len(list_of_points[0])
-    list_of_points = list(zip(*list_of_points))
-    assert (len(list_of_points) == dimensionality)
-    hist_matrix, edges = np.histogramdd(list_of_points, bins= num_of_bins * np.ones(dimensionality), range = range_of_each_dim)
-
-    # following is the main algorithm to find boundary and holes
-    # simply find the points that are lower than average of its 4 neighbors
-    if not preprocessing_func is None:
-        hist_matrix = np.array(map(lambda x: map(preprocessing_func, x), hist_matrix))   # preprocessing process
-
-    diff_with_neighbors = np.zeros(hist_matrix.shape)
-    temp_1 = [list(range(item)) for item in hist_matrix.shape]
-    for grid_index in itertools.product(*temp_1):
-        neighbor_index_list = [(np.array(grid_index) + temp_2).astype(int) for temp_2 in np.eye(dimensionality)]
-        neighbor_index_list += [(np.array(grid_index) - temp_2).astype(int) for temp_2 in np.eye(dimensionality)]
-        neighbor_index_list = filter(lambda x: np.all(x >= 0) and np.all(x < num_of_bins), neighbor_index_list)
-        # print "grid_index = %s" % str(grid_index)
-        # print "neighbor_index_list = %s" % str(neighbor_index_list)
-        diff_with_neighbors[tuple(grid_index)] = hist_matrix[tuple(grid_index)] - np.average(
-            [hist_matrix[tuple(temp_2)] for temp_2 in neighbor_index_list]
-        )
-
-    # get grid centers
-    edge_centers = map(lambda x: 0.5 * (np.array(x[1:]) + np.array(x[:-1])), edges)
-    grid_centers = np.array(list(itertools.product(*edge_centers)))  # "itertools.product" gives Cartesian/direct product of several lists
-    grid_centers = np.reshape(grid_centers, np.append(num_of_bins * np.ones(dimensionality), dimensionality).astype(int))
-
-    potential_centers = []
-    # now sort these grids (that has no points in it)
-    # based on total number of points in its neighbors
-    
-    temp_seperate_index = []
-
-    for _ in range(dimensionality):
-        temp_seperate_index.append(list(range(num_of_bins)))
-
-    index_of_grids = list(itertools.product(
-                    *temp_seperate_index
-                    ))
-
-    index_of_grids =  filter(lambda x: diff_with_neighbors[x] < 0, index_of_grids)     # only apply to grids with diff_with_neighbors value < 0
-    sorted_index_of_grids = sorted(index_of_grids, key = lambda x: diff_with_neighbors[x]) # sort based on histogram, return index values
-
-    for index in sorted_index_of_grids[:num_of_boundary_points]:  # note index can be of dimension >= 2
-        temp_potential_center = map(lambda x: round(x, 2), grid_centers[index])
-        potential_centers.append(temp_potential_center)
-
-    return potential_centers
 
 if __name__ == '__main__':
     my_positions, my_velocities = simulate(500)
@@ -211,8 +153,13 @@ if __name__ == '__main__':
     print(my_positions)
     
 
-def clustering():
-    pass
+def clustering(positions, n_clusters):
+    from sklearn import cluster, preprocessing
+    temp_positions = np.array([positions[:, 0], positions[:,1], np.cos(positions[:,2])]).T
+    min_max_scaler = preprocessing.MinMaxScaler()
+    temp_positions = min_max_scaler.fit_transform(temp_positions)
+    kmeans = cluster.KMeans(n_clusters=n_clusters).fit(temp_positions)
+    return kmeans.labels_
 
 def get_new_starting_configs():
     pass
