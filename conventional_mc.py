@@ -241,7 +241,7 @@ def clustering(positions, n_clusters):
     kmeans = cluster.KMeans(n_clusters=n_clusters).fit(temp_positions)
     return kmeans.labels_
 
-def getNewPos(Pos,nbins):
+def getNewPos(Pos,nbins,steps=10000):
     Pos = list(zip(*Pos)) #make it a list
     hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
     maxnumber = hist_matrix.max()
@@ -249,10 +249,12 @@ def getNewPos(Pos,nbins):
     newhist_matrix -= maxnumber
     newhist_matrix = -newhist_matrix
     summn = newhist_matrix.sum()
-    prob = newhist_matrix/summn #building prob as n_i/all_n
+    prob = newhist_matrix
+    prob = prob/prob.sum()
+    #building prob as n_i/all_n
     edges = np.array(edges)
 
-    for i in range(10000):
+    for i in range(steps):
         # metropolis scan with prob[x][y][theta] as acceptance rate
         # numbers need to be altered, to see how many "jumps" we need during the simulation
         x = np.random.randint(0,nbins)
@@ -266,9 +268,38 @@ def getNewPos(Pos,nbins):
         if prob[x][y][theta] > np.random.uniform():
             print("success")
             return newPos
-        if i > 2000:
-            print ("shit!!!!")
-            return Pos(len(Pos))
+        if i == steps-1:
+            return (Pos[0][len(Pos)],Pos[1][len(Pos)],Pos[2][len(Pos)])
+
+### MD and MC sweep
+def simulate2(num_steps, h_stepsize=0.01):
+    configs, velocities = init_config()
+
+    configs_list, velocities_list = [], []
+
+    for item in range(num_steps):
+        configs_list.append(configs)
+
+        velocities_list.append(velocities)
+
+        temp_acceleration = get_force_and_torque(configs[0], configs[1], configs[2]) / mass_vector
+
+        temp_next_configs = VerletNextR(configs, velocities, temp_acceleration, h_stepsize)
+
+        temp_next_acceleration = get_force_and_torque(
+            temp_next_configs[0], temp_next_configs[1], temp_next_configs[2]) / mass_vector
+
+        temp_next_v = VerletNextV(velocities, temp_acceleration, temp_next_acceleration, h_stepsize)
+
+        if 0 < temp_next_configs[0] < L_channel and 0 < temp_next_configs[1] < R_channel:
+            configs, velocities = temp_next_configs, temp_next_v
+        else:  # restart when it goes out of the channel
+            configs, velocities = init_config()
+
+        if item%100 == 0:
+            configs = getNewPos(configs_list,5)
+
+    return np.array(configs_list), np.array(velocities_list)
 
 def get_new_starting_configs():
     pass
