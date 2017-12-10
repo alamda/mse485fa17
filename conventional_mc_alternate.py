@@ -140,6 +140,80 @@ def simulate(num_steps, h_stepsize=0.01):
     
     return np.array(configs_list), np.array(velocities_list)
 
+#Qiangqiang Huang,qh4@illinois.edu
+def visual(coords_negative_particles,coords_particles,my_positions,my_velocities,dpivalue = 100):  
+    """
+    coords_particles denotes coordinates of the particles and charges of the membrane
+    my_positions is a np.array. The shape is N*3. N denotes the simulation step.
+    my_velocities is a np.array. The shape is N*3. N denotes the simulation step.
+    dpivalue is the default dpi for all the figures. Reduce it to shrink all the figures
+    """
+    step = len(my_positions)
+    fig1 = plt.figure(dpi = dpivalue) 
+    #draw particles and charges of the membrane
+    plt.scatter(coords_particles[:,0], coords_particles[:,1])
+    plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1],s=30,c='r',marker='X')
+    #draw the water's positions
+    plt.scatter(my_positions[:,0], my_positions[:,1],s=10)
+    #draw the water's velocity vector
+    plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5) 
+    #annotate the first time step
+    plt.annotate('1',[my_positions[0,0],my_positions[0,1]])
+    plt.scatter(my_positions[0,0],my_positions[0,1],s=50,c='g')
+    #annotate the last time step
+    plt.annotate(str(step),[my_positions[-1,0],my_positions[-1,1]])
+    plt.scatter(my_positions[-1,0],my_positions[-1,1],s=50,c='g')
+    plt.xlabel(r'$X$')
+    plt.ylabel(r'$Y$')
+    
+    fig2 = plt.figure(dpi = dpivalue) 
+    #draw histodiagrams
+    plt.subplot(231)
+    plt.hist(my_positions[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.xlabel(r'$X$')
+    plt.ylabel(r'$Probability$')
+    plt.subplot(232)
+    plt.hist(my_positions[:,1], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+#    print('nnnnnnn',n)
+    plt.xlabel(r'$Y$')
+    plt.ylabel(r'$Probability$')
+    plt.subplot(233)
+    plt.hist(my_positions[:,2], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+#    print('nnnnnnn',n)
+    plt.xlabel(r'$\theta$')
+    plt.ylabel(r'$Probability$')
+    plt.subplot(234)
+    plt.hist(my_velocities[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.xlabel(r'$u$')
+    plt.ylabel(r'$Probability$')
+    plt.subplot(235)
+    plt.hist(my_velocities[:,1], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+#    print('nnnnnnn',n)
+    plt.xlabel(r'$v$')
+    plt.ylabel(r'$Probability$')
+    plt.subplot(236)
+    plt.hist(my_velocities[:,2], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+#    print('nnnnnnn',n)
+    plt.xlabel(r'$\omega$')
+    plt.ylabel(r'$Probability$')    
+    plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.4,
+                    wspace=0.7)
+    
+    fig3 = plt.figure(dpi = dpivalue) 
+    #draw trace
+    plt.subplot(121)
+    plt.plot(my_positions[:,0], alpha=0.5)
+    plt.xlabel(r'$step$')
+    plt.ylabel(r'$X$')
+    plt.subplot(122)
+    plt.plot(my_positions[:,1], alpha=0.5)
+    plt.xlabel(r'$step$')
+    plt.ylabel(r'$Y$')   
+    plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
+                    wspace=0.3)   
+    plt.show()
+return 0
+  
 my_positions, my_velocities = simulate(1100)
 
 plt.figure(1,dpi=100)
