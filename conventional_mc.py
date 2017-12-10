@@ -244,21 +244,25 @@ def get_new_starting_configs(cluster_labels, cluster_centers,
     weighted_reward = (temp_component_sum * unweighted_reward_components[:10]).sum(axis=1)
     sorted_cluster_centers_based_on_reward = sort_one_list_based_on_another(
         sorted_cluster_centers[:num_clusters_for_consideration], weighted_reward)
-    return sorted_cluster_centers_based_on_reward[:num_starting_points]
+    return sorted_cluster_centers_based_on_reward[:num_starting_points], temp_component_sum
 
-def RL_simulation():    # enhanced sampling with reinforcement learning
-    init_simulation_steps = 10000
-    num_rounds = 100; num_steps_each_round = 1000
-    my_positions_list = []
+# enhanced sampling with reinforcement learning
+def RL_simulation(init_simulation_steps = 10000, num_rounds=100, num_steps_each_round=1000,
+                num_clusters = 50, num_clusters_for_consideration=10, num_starting_points=1):    
+    my_positions_list, weights_list, starting_configs_list = [], [], []
     my_positions, _, _ = simulate(init_simulation_steps)
     my_positions_list.append(my_positions)
     for item in range(num_rounds):
-        cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), 50)
-        starting_configs = get_new_starting_configs(cluster_labels, cluster_centers, 10, 1)
+        print item
+        cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
+        starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers, 
+            num_clusters_for_consideration, num_starting_points)
+        weights_list.append(weights)
+        starting_configs_list.append(starting_configs)
         for item_config in starting_configs:
             temp_my_pos, _, _ = simulate(num_steps_each_round, starting_config=item_config)
             my_positions_list.append(temp_my_pos)
-    return my_positions_list
+    return my_positions_list, weights_list, starting_configs_list
 
 def getNewPos(Pos,nbins,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
