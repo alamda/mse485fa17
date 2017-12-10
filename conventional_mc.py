@@ -7,6 +7,7 @@ Created on Wed Nov 15 15:45:58 2017
 
 import numpy as np, subprocess, itertools
 import matplotlib.pyplot as plt
+import timeit
 
 ###################   global parameters   ############################
 # TODO: modify these parameters accordingly since I just put random values for now
@@ -115,6 +116,9 @@ def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta 
     return np.array([net_force[0], net_force[1], net_torque])
 
 def simulate(num_steps, h_stepsize=0.01):
+
+    starttime = timeit.default_timer() # timer
+
     configs, velocities = init_config()
 
     configs_list, velocities_list = [], []
@@ -138,7 +142,10 @@ def simulate(num_steps, h_stepsize=0.01):
         else:  # restart when it goes out of the channel
             configs, velocities = init_config()
 
-    return np.array(configs_list), np.array(velocities_list)
+    endtime = timeit.default_timer() # timer
+    processtime = endtime - starttime # timer
+
+    return np.array(configs_list), np.array(velocities_list), processtime
 #Qiangqiang Huang,qh4@illinois.edu
 def visual(coords_negative_particles,coords_particles,my_positions,my_velocities,dpivalue = 100):
     """
