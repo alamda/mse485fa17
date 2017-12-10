@@ -40,16 +40,11 @@ sigma_12 = sigma_LJ ** 12
 mass_vector = np.array([mass_water, mass_water, I_water])
 #######################################################################
 
-def init_config():
-    # generate random (x,y,theta, v_x, v_y, omega)
-    temp_x = np.random.uniform(low=0 * L_channel, high=0 * L_channel) #I made it closer to the center
-    
-    temp_y = np.random.uniform(low=0 * R_channel, high=1 * R_channel) #I made it closer to the center
-    
-    temp_theta = np.random.uniform(high= 2 * np.pi)
-    
+def init_config(temp_x=None, temp_y=None, temp_theta=None):
+    temp_x = np.random.uniform(low=0 * L_channel, high=0 * L_channel) if temp_x is None else temp_x
+    temp_y = np.random.uniform(low=0 * R_channel, high=1 * R_channel) if temp_y is None else temp_y
+    temp_theta = np.random.uniform(high= 2 * np.pi) if temp_theta is None else temp_theta
     v_x, v_y, omega = np.random.normal(scale=1.0, size=3)
-    
     return np.array([temp_x, temp_y, temp_theta]), np.array([v_x, v_y, omega])
 
 def VerletNextR(r_t,v_t,a_t,h):
@@ -159,13 +154,25 @@ def clustering(positions, n_clusters):
     min_max_scaler = preprocessing.MinMaxScaler()
     temp_positions = min_max_scaler.fit_transform(temp_positions)
     kmeans = cluster.KMeans(n_clusters=n_clusters).fit(temp_positions)
-    return kmeans.labels_
+    return kmeans.labels_, min_max_scaler.inverse_transform(kmeans.cluster_centers_)
 
-def get_new_starting_configs():
-    pass
+def sort_one_list_based_on_another(one_list, another_list):
+    return np.array([x for _, x in sorted(zip(another_list, one_list), key=lambda x: x[0])])
 
-def get_rewards():
-    pass
+def get_new_starting_configs(cluster_labels, cluster_centers, 
+                            num_clusters_for_consideration, num_starting_points=1):
+    temp_sums = [np.sum(cluster_labels == item) for item in np.unique(cluster_labels)]
+    sorted_cluster_centers = sort_one_list_based_on_another(cluster_centers, temp_sums)
+    unweighted_reward_components = np.abs((sorted_cluster_centers - np.mean(sorted_cluster_centers, 
+        axis=0)) / np.std(sorted_cluster_centers, axis=0))
+    unweighted_reward_components = unweighted_reward_components[:num_clusters_for_consideration]
+    temp_component_sum = unweighted_reward_components.sum(axis=0)
+    temp_component_sum /= np.linalg.norm(temp_component_sum)
+    weighted_reward = (temp_component_sum * unweighted_reward_components[:10]).sum(axis=1)
+    sorted_cluster_centers_based_on_reward = sort_one_list_based_on_another(
+        sorted_cluster_centers[:num_clusters_for_consideration], weighted_reward)
+    return sorted_cluster_centers_based_on_reward[:num_starting_points]
 
-def get_volumn_of_explored_region():
-    pass
+def RL_simulation():    # enhanced sampling with reinforcement learning
+    
+    return
