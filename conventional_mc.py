@@ -241,7 +241,7 @@ def clustering(positions, n_clusters):
     kmeans = cluster.KMeans(n_clusters=n_clusters).fit(temp_positions)
     return kmeans.labels_
 
-def getNewPos(Pos,nbins,steps):
+def getNewPos(Pos,nbins,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
     hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
     maxnumber = hist_matrix.max()
@@ -250,7 +250,7 @@ def getNewPos(Pos,nbins,steps):
     newhist_matrix = -newhist_matrix
     summn = newhist_matrix.sum()
     prob = newhist_matrix
-    prob = prob/prob.sum()
+    prob = prob/prob.sum() # normalized
     #building prob as n_i/all_n
     edges = np.array(edges)
     x_edge = edges[0][2]-edges[0][1]
@@ -264,7 +264,7 @@ def getNewPos(Pos,nbins,steps):
         y = np.random.randint(0,nbins)
         theta = np.random.randint(0,nbins)
         newPos_x = edges[0][x]+x_edge
-        newPos_y = edges[1][y]+y_edge
+        newPos_y = edges[1][y]+0.5*y_edge
         newPos_theta = edges[2][theta]+theta_edge
         newPos = np.array([newPos_x,newPos_y,newPos_theta])
 
