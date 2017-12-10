@@ -110,23 +110,17 @@ def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta 
 
     return np.array([net_force[0], net_force[1], net_torque])
 
-def simulate(num_steps, h_stepsize=0.01):
+def simulate(num_steps, h_stepsize=0.01, starting_config=(None,None,None)):
 
     starttime = timeit.default_timer() # timer
-
     configs, velocities = init_config()
-
+    if not starting_config[0] is None: configs = starting_config
     configs_list, velocities_list = [], []
-
     for item in range(num_steps):
         configs_list.append(configs)
-
         velocities_list.append(velocities)
-
         temp_acceleration = get_force_and_torque(configs[0], configs[1], configs[2]) / mass_vector
-
         temp_next_configs = VerletNextR(configs, velocities, temp_acceleration, h_stepsize)
-
         temp_next_acceleration = get_force_and_torque(
             temp_next_configs[0], temp_next_configs[1], temp_next_configs[2]) / mass_vector
 
@@ -135,7 +129,7 @@ def simulate(num_steps, h_stepsize=0.01):
         if 0 < temp_next_configs[0] < L_channel and 0 < temp_next_configs[1] < R_channel:
             configs, velocities = temp_next_configs, temp_next_v
         else:  # restart when it goes out of the channel
-            configs, velocities = init_config()
+            configs, velocities = init_config(*starting_config)
 
     endtime = timeit.default_timer() # timer
     processtime = endtime - starttime # timer
@@ -253,8 +247,18 @@ def get_new_starting_configs(cluster_labels, cluster_centers,
     return sorted_cluster_centers_based_on_reward[:num_starting_points]
 
 def RL_simulation():    # enhanced sampling with reinforcement learning
-    
-    return
+    init_simulation_steps = 10000
+    num_rounds = 100; num_steps_each_round = 1000
+    my_positions_list = []
+    my_positions, _, _ = simulate(init_simulation_steps)
+    my_positions_list.append(my_positions)
+    for item in range(num_rounds):
+        cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), 50)
+        starting_configs = get_new_starting_configs(cluster_labels, cluster_centers, 10, 1)
+        for item_config in starting_configs:
+            temp_my_pos, _, _ = simulate(num_steps_each_round, starting_config=item_config)
+            my_positions_list.append(temp_my_pos)
+    return my_positions_list
 
 def getNewPos(Pos,nbins,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
@@ -318,12 +322,3 @@ def simulate2(num_steps, h_stepsize=0.01):
             configs = getNewPos(configs_list,10,10000)
 
     return np.array(configs_list), np.array(velocities_list)
-
-def get_new_starting_configs():
-    pass
-
-def get_rewards():
-    pass
-
-def get_volumn_of_explored_region():
-    pass
