@@ -233,7 +233,7 @@ def sort_one_list_based_on_another(one_list, another_list):
     return np.array([x for _, x in sorted(zip(another_list, one_list), key=lambda x: x[0])])
 
 def get_new_starting_configs(cluster_labels, cluster_centers, 
-                            num_clusters_for_consideration, num_starting_points=1):
+                            num_clusters_for_consideration):
     temp_sums = [np.sum(cluster_labels == item) for item in np.unique(cluster_labels)]
     sorted_cluster_centers = sort_one_list_based_on_another(cluster_centers, temp_sums)
     unweighted_reward_components = np.abs((sorted_cluster_centers - np.mean(sorted_cluster_centers, 
@@ -241,10 +241,10 @@ def get_new_starting_configs(cluster_labels, cluster_centers,
     unweighted_reward_components = unweighted_reward_components[:num_clusters_for_consideration]
     temp_component_sum = unweighted_reward_components.sum(axis=0)
     temp_component_sum /= np.linalg.norm(temp_component_sum)
-    weighted_reward = (temp_component_sum * unweighted_reward_components[:10]).sum(axis=1)
+    weighted_reward = (temp_component_sum * unweighted_reward_components).sum(axis=1)
     sorted_cluster_centers_based_on_reward = sort_one_list_based_on_another(
         sorted_cluster_centers[:num_clusters_for_consideration], weighted_reward)
-    return sorted_cluster_centers_based_on_reward[:num_starting_points], temp_component_sum
+    return sorted_cluster_centers_based_on_reward[::-1], temp_component_sum
 
 # enhanced sampling with reinforcement learning
 def RL_simulation(init_simulation_steps = 10000, num_rounds=100, num_steps_each_round=1000,
@@ -256,7 +256,8 @@ def RL_simulation(init_simulation_steps = 10000, num_rounds=100, num_steps_each_
         print item
         cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
         starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers, 
-            num_clusters_for_consideration, num_starting_points)
+            num_clusters_for_consideration)
+        starting_configs = starting_configs[:num_starting_points]
         weights_list.append(weights)
         starting_configs_list.append(starting_configs)
         for item_config in starting_configs:
