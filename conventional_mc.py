@@ -15,11 +15,11 @@ R_channel = 0.7
 L_channel = 5
 charge_hydrogen = +0.4
 charge_oxygen = -0.8
-bond_length_water = 0.02
+bond_length_water = 0.1
 bond_angle_water = 1.88496
 I_water = 1        # moment of inertia of water molecule
 mass_water = 1
-k_electric = 100    # electric constant, equal to (1 / (4 \pi \epsilon_0))
+k_electric = 10    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
 epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
 random_force_strength = 20.0
@@ -110,7 +110,7 @@ def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta 
 
     return np.array([net_force[0], net_force[1], net_torque])
 
-def simulate(num_steps, h_stepsize=0.01, starting_config=(None,None,None)):
+def simulate(num_steps, h_stepsize=0.001, starting_config=(None,None,None)):
 
     starttime = timeit.default_timer() # timer
     configs, velocities = init_config()
