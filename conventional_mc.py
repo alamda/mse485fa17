@@ -22,7 +22,7 @@ I_water = 1        # moment of inertia of water molecule
 mass_water = 1
 k_electric = 10    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
-epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
+epsilon_LJ = 2.5; sigma_LJ = 0.3  # they should be different for different particles
 random_force_strength = 2.0
 const_force = 2.0  # constant force that drives water molecule towards the right
 
@@ -233,11 +233,11 @@ def clustering(positions, n_clusters):
 def sort_one_list_based_on_another(one_list, another_list):
     return np.array([x for _, x in sorted(zip(another_list, one_list), key=lambda x: x[0])])
 
-def get_new_starting_configs(cluster_labels, cluster_centers, 
+def get_new_starting_configs(cluster_labels, cluster_centers,
                             num_clusters_for_consideration):
     temp_sums = [np.sum(cluster_labels == item) for item in np.unique(cluster_labels)]
     sorted_cluster_centers = sort_one_list_based_on_another(cluster_centers, temp_sums)
-    unweighted_reward_components = np.abs((sorted_cluster_centers - np.mean(sorted_cluster_centers, 
+    unweighted_reward_components = np.abs((sorted_cluster_centers - np.mean(sorted_cluster_centers,
         axis=0)) / np.std(sorted_cluster_centers, axis=0))
     unweighted_reward_components = unweighted_reward_components[:num_clusters_for_consideration]
     temp_component_sum = unweighted_reward_components.sum(axis=0)
@@ -249,14 +249,14 @@ def get_new_starting_configs(cluster_labels, cluster_centers,
 
 # enhanced sampling with reinforcement learning
 def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_round=1000,
-                num_clusters = 50, num_clusters_for_consideration=10, num_starting_points=1):    
+                num_clusters = 50, num_clusters_for_consideration=10, num_starting_points=1):
     my_positions_list, weights_list, starting_configs_list = [], [], []
     my_positions, _, _ = simulate(init_simulation_steps)
     my_positions_list.append(my_positions.copy())
     for item in range(num_rounds):
         print item
         cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
-        starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers, 
+        starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers,
             num_clusters_for_consideration)
         starting_configs = starting_configs[:num_starting_points]
         weights_list.append(weights.copy())
