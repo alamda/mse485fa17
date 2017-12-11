@@ -8,6 +8,7 @@ Created on Wed Nov 15 15:45:58 2017
 import numpy as np, subprocess, itertools
 import matplotlib.pyplot as plt
 import timeit
+from copy import deepcopy
 
 ###################   global parameters   ############################
 # TODO: modify these parameters accordingly since I just put random values for now
@@ -22,8 +23,8 @@ mass_water = 1
 k_electric = 10    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
 epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
-random_force_strength = 20.0
-const_force = 20.0  # constant force that drives water molecule towards the right
+random_force_strength = 2.0
+const_force = 2.0  # constant force that drives water molecule towards the right
 
 #######################################################################
 # these are helper global variables
@@ -113,12 +114,12 @@ def get_force_and_torque(d_water, r_water, theta_water):  # params: x, y, theta 
 def simulate(num_steps, h_stepsize=0.001, starting_config=(None,None,None)):
 
     starttime = timeit.default_timer() # timer
-    configs, velocities = init_config()
-    if not starting_config[0] is None: configs = starting_config
+    configs, velocities = init_config(*starting_config)
+    # if not starting_config[0] is None: configs = starting_config
     configs_list, velocities_list = [], []
     for item in range(num_steps):
-        configs_list.append(configs)
-        velocities_list.append(velocities)
+        configs_list.append(configs.copy())
+        velocities_list.append(velocities.copy())
         temp_acceleration = get_force_and_torque(configs[0], configs[1], configs[2]) / mass_vector
         temp_next_configs = VerletNextR(configs, velocities, temp_acceleration, h_stepsize)
         temp_next_acceleration = get_force_and_torque(
@@ -251,21 +252,21 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
                 num_clusters = 50, num_clusters_for_consideration=10, num_starting_points=1):    
     my_positions_list, weights_list, starting_configs_list = [], [], []
     my_positions, _, _ = simulate(init_simulation_steps)
-    my_positions_list.append(my_positions)
+    my_positions_list.append(my_positions.copy())
     for item in range(num_rounds):
         print item
         cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
         starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers, 
             num_clusters_for_consideration)
         starting_configs = starting_configs[:num_starting_points]
-        weights_list.append(weights)
-        starting_configs_list.append(starting_configs)
+        weights_list.append(weights.copy())
+        starting_configs_list.append(starting_configs.copy())
         for item_config in starting_configs:
             temp_pos_list = []
             item_config[2] = np.arccos(item_config[2])
             temp_my_pos, _, _ = simulate(num_steps_each_round, starting_config=item_config)
-            temp_pos_list.append(temp_my_pos)
-        my_positions_list += temp_pos_list
+            temp_pos_list.append(temp_my_pos.copy())
+        my_positions_list += deepcopy(temp_pos_list)
     return my_positions_list, weights_list, starting_configs_list
 
 def getNewPos(Pos,nbins,steps=1000):
