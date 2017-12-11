@@ -15,7 +15,7 @@ R_channel = 0.7
 L_channel = 5
 charge_hydrogen = +0.4
 charge_oxygen = -0.8
-bond_length_water = 0.1
+bond_length_water = 0.02
 bond_angle_water = 1.88496
 I_water = 1        # moment of inertia of water molecule
 mass_water = 1
@@ -23,7 +23,7 @@ k_electric = 100    # electric constant, equal to (1 / (4 \pi \epsilon_0))
 n_neural_particles = 10  # number of neural particles on each side
 epsilon_LJ = 2.5; sigma_LJ = 0.25  # they should be different for different particles
 random_force_strength = 20.0
-const_force = 200.0  # constant force that drives water molecule towards the right
+const_force = 20.0  # constant force that drives water molecule towards the right
 
 #######################################################################
 # these are helper global variables
@@ -43,7 +43,7 @@ mass_vector = np.array([mass_water, mass_water, I_water])
 
 def init_config(temp_x=None, temp_y=None, temp_theta=None):
     temp_x = np.random.uniform(low=0 * L_channel, high=0 * L_channel) if temp_x is None else temp_x
-    temp_y = np.random.uniform(low=0 * R_channel, high=1 * R_channel) if temp_y is None else temp_y
+    temp_y = np.random.uniform(low=0.4 * R_channel, high=0.6 * R_channel) if temp_y is None else temp_y
     temp_theta = np.random.uniform(high= 2 * np.pi) if temp_theta is None else temp_theta
     v_x, v_y, omega = np.random.normal(scale=1.0, size=3)
     return np.array([temp_x, temp_y, temp_theta]), np.array([v_x, v_y, omega])
@@ -247,7 +247,7 @@ def get_new_starting_configs(cluster_labels, cluster_centers,
     return sorted_cluster_centers_based_on_reward[::-1], temp_component_sum
 
 # enhanced sampling with reinforcement learning
-def RL_simulation(init_simulation_steps = 10000, num_rounds=100, num_steps_each_round=1000,
+def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_round=1000,
                 num_clusters = 50, num_clusters_for_consideration=10, num_starting_points=1):    
     my_positions_list, weights_list, starting_configs_list = [], [], []
     my_positions, _, _ = simulate(init_simulation_steps)
@@ -261,6 +261,7 @@ def RL_simulation(init_simulation_steps = 10000, num_rounds=100, num_steps_each_
         weights_list.append(weights)
         starting_configs_list.append(starting_configs)
         for item_config in starting_configs:
+            item_config[2] = np.arccos(item_config[2])
             temp_my_pos, _, _ = simulate(num_steps_each_round, starting_config=item_config)
             my_positions_list.append(temp_my_pos)
     return my_positions_list, weights_list, starting_configs_list
