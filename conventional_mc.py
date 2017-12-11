@@ -152,7 +152,7 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     #draw the water's positions
     plt.scatter(my_positions[:,0], my_positions[:,1],s=10)
     #draw the water's velocity vector
-    plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5)
+    #plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5)
     #annotate the first time step
     plt.annotate('1',[my_positions[0,0],my_positions[0,1]])
     plt.scatter(my_positions[0,0],my_positions[0,1],s=50,c='g')
@@ -174,9 +174,9 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.xlabel(r'$Y$')
     plt.ylabel(r'$Probability$')
     plt.subplot(233)
-    plt.hist(my_positions[:,2], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.hist(np.cos(my_positions[:,2]), 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
 #    print('nnnnnnn',n)
-    plt.xlabel(r'$\theta$')
+    plt.xlabel(r'$cos(\theta)$')
     plt.ylabel(r'$Probability$')
     plt.subplot(234)
     plt.hist(my_velocities[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
@@ -207,6 +207,21 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.ylabel(r'$Y$')
     plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
                     wspace=0.3)
+    
+    fig4 = plt.figure(dpi = dpivalue)
+    #draw particles and charges of the membrane
+    #draw the water's positions
+    plt.scatter(my_positions[:,1], np.cos(my_positions[:,2]),s=10)
+    #draw the water's velocity vector
+    #plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5)
+    #annotate the first time step
+    plt.annotate('1',[my_positions[0,1],np.cos(my_positions[0,2])])
+    plt.scatter(my_positions[0,1],np.cos(my_positions[0,2]),s=50,c='g')
+    #annotate the last time step
+    plt.annotate(str(step),[my_positions[-1,1],np.cos(my_positions[-1,2])])
+    plt.scatter(my_positions[-1,1],np.cos(my_positions[-1,2]),s=50,c='g')
+    plt.xlabel(r'$Y$')
+    plt.ylabel(r'$cos(\theta)$')
     plt.show()
     return 0
 
