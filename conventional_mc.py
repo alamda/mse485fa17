@@ -261,9 +261,11 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
         weights_list.append(weights)
         starting_configs_list.append(starting_configs)
         for item_config in starting_configs:
+            temp_pos_list = []
             item_config[2] = np.arccos(item_config[2])
             temp_my_pos, _, _ = simulate(num_steps_each_round, starting_config=item_config)
-            my_positions_list.append(temp_my_pos)
+            temp_pos_list.append(temp_my_pos)
+        my_positions_list += temp_pos_list
     return my_positions_list, weights_list, starting_configs_list
 
 def getNewPos(Pos,nbins,steps=1000):
