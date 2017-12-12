@@ -207,7 +207,7 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.ylabel(r'$Y$')
     plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
                     wspace=0.3)
-    
+
     fig4 = plt.figure(dpi = dpivalue)
     #draw particles and charges of the membrane
     #draw the water's positions
@@ -287,7 +287,7 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
 def getNewPos(Pos,nbins,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
     hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
-    maxnumber = hist_matrix.max()
+    maxnumber = hist_matrix.max()+1
     newhist_matrix = np.copy(hist_matrix)
     newhist_matrix -= maxnumber
     newhist_matrix = -newhist_matrix
@@ -300,22 +300,36 @@ def getNewPos(Pos,nbins,steps=1000):
     y_edge = edges[1][2]-edges[1][1]
     theta_edge = edges[2][2]-edges[2][1]
 
+    nowPos = [Pos[0][len(Pos)],Pos[1][len(Pos)],Pos[2][len(Pos)]]
+    nowX = int(nowPos[0]/x_edge)
+    nowY = int(nowPos[1]/y_edge)
+    nowTheta = int(nowPos[2]/theta_edge)
+
     for i in range(steps):
         # metropolis scan with prob[x][y][theta] as acceptance rate
         # numbers need to be altered, to see how many "jumps" we need during the simulation
         x = np.random.randint(0,nbins)
         y = np.random.randint(0,nbins)
         theta = np.random.randint(0,nbins)
-        newPos_x = edges[0][x]+x_edge
+        newPos_x = edges[0][x]+0.5*x_edge
         newPos_y = edges[1][y]+0.5*y_edge
-        newPos_theta = edges[2][theta]+theta_edge
+        newPos_theta = edges[2][theta]+0.5*theta_edge
+
         newPos = np.array([newPos_x,newPos_y,newPos_theta])
 
-        if prob[x][y][theta] > np.random.uniform():
-            #print("success")
+        if min(1,(prob[x][y][theta]/prob[nowX][nowY][nowTheta])) > np.random.uniform():
+            if newPos[0] <= 0:
+                newPos[0] += 0.5*x_edge
+            if newPos[0] >= 5:
+                newPos[0] -= 0.5*x_edge
+            if newPos[1] <= 0:
+                newPos[1] += 0.5*y_edge
+            if newPos[1] >= 0:
+                newPos[1] -= 0.5*y_edge
+            #print("great")
             return newPos
         if i == steps-1:
-            return (Pos[0][len(Pos)],Pos[1][len(Pos)],Pos[2][len(Pos)])
+            return nowPos
 
 ### MD and MC sweep
 def simulate2(num_steps, h_stepsize=0.01):
@@ -342,7 +356,7 @@ def simulate2(num_steps, h_stepsize=0.01):
         else:  # restart when it goes out of the channel
             configs, velocities = init_config()
 
-        if item%100 == 0:
-            configs = getNewPos(configs_list,10,10000)
+        if item%1000 == 0:
+            configs = getNewPos(configs_list,10)
 
     return np.array(configs_list), np.array(velocities_list)
