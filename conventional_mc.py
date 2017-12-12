@@ -326,7 +326,6 @@ def getNewPos(Pos,nbins,steps=1000):
                 newPos[1] += 0.5*y_edge
             if newPos[1] >= 0:
                 newPos[1] -= 0.5*y_edge
-            #print("great")
             return newPos
         if i == steps-1:
             return nowPos
@@ -356,7 +355,7 @@ def simulate2(num_steps, h_stepsize=0.01):
         else:  # restart when it goes out of the channel
             configs, velocities = init_config()
 
-        if item%1000 == 0:
+        if item > 100 and item%1000 == 0:
             configs = getNewPos(configs_list,10)
 
     return np.array(configs_list), np.array(velocities_list)
