@@ -165,19 +165,24 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     fig2 = plt.figure(dpi = dpivalue)
     #draw histodiagrams
     plt.subplot(231)
-    plt.hist(my_positions[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.hist(my_positions[:,0], 100, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
     plt.xlabel(r'$X$')
+    plt.xlim(-0.1,7.1)
     plt.ylabel(r'$Probability$')
     plt.subplot(232)
-    plt.hist(my_positions[:,1], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.hist(my_positions[:,1], 100, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
 #    print('nnnnnnn',n)
     plt.xlabel(r'$Y$')
-    plt.ylabel(r'$Probability$')
+    plt.xlim(-0.1,0.8)
+    #plt.ylabel(r'$Probability$')
     plt.subplot(233)
-    plt.hist(np.cos(my_positions[:,2]), 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
+    plt.hist(np.cos(my_positions[:,2]), 100, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
 #    print('nnnnnnn',n)
     plt.xlabel(r'$cos(\theta)$')
-    plt.ylabel(r'$Probability$')
+    plt.xlim(-1.1,1.1)
+    #plt.ylabel(r'$Probability$')
+
+    '''
     plt.subplot(234)
     plt.hist(my_velocities[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
     plt.xlabel(r'$u$')
@@ -194,6 +199,8 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.ylabel(r'$Probability$')
     plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.4,
                     wspace=0.7)
+
+    '''
 
     fig3 = plt.figure(dpi = dpivalue)
     #draw trace
