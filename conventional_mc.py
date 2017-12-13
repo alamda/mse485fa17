@@ -269,7 +269,7 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
     my_positions, _, _ = simulate(init_simulation_steps)
     my_positions_list.append(my_positions.copy())
     for item in range(num_rounds):
-        print item
+        print (item)
         cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
         starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers,
             num_clusters_for_consideration)
@@ -284,7 +284,7 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
         my_positions_list.append(np.concatenate(temp_pos_list).copy())
     return my_positions_list, weights_list, starting_configs_list
 
-def getNewPos(Pos,nbins,steps=1000):
+def getNewPos(Pos,nbins=10,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
     hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
     maxnumber = hist_matrix.max()+1
@@ -331,7 +331,10 @@ def getNewPos(Pos,nbins,steps=1000):
             return nowPos
 
 ### MD and MC sweep
-def simulate2(num_steps, h_stepsize=0.01):
+def simulate2(num_steps, h_stepsize=0.001):
+
+    starttime = timeit.default_timer() # timer
+
     configs, velocities = init_config()
 
     configs_list, velocities_list = [], []
@@ -355,7 +358,10 @@ def simulate2(num_steps, h_stepsize=0.01):
         else:  # restart when it goes out of the channel
             configs, velocities = init_config()
 
-        if item > 100 and item%1000 == 0:
+        if item != 0 and item%1000 == 0:
             configs = getNewPos(configs_list,10)
 
-    return np.array(configs_list), np.array(velocities_list)
+    endtime = timeit.default_timer() # timer
+    processtime = endtime - starttime # timer
+
+    return np.array(configs_list), np.array(velocities_list), processtime
