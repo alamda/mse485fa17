@@ -147,6 +147,7 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     step = len(my_positions)
     fig1 = plt.figure(dpi = dpivalue)
     #draw particles and charges of the membrane
+    plt.subplot(121)
     plt.scatter(coords_particles[:,0], coords_particles[:,1])
     plt.scatter(coords_negative_particles[:,0], coords_negative_particles[:,1],s=30,c='r',marker='X')
     #draw the water's positions
@@ -161,6 +162,20 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.scatter(my_positions[-1,0],my_positions[-1,1],s=50,c='g')
     plt.xlabel(r'$X$')
     plt.ylabel(r'$Y$')
+    plt.subplot(122)
+    plt.scatter(my_positions[:,1], np.cos(my_positions[:,2]),s=10)
+    #draw the water's velocity vector
+    #plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5)
+    #annotate the first time step
+    plt.annotate('1',[my_positions[0,1],np.cos(my_positions[0,2])])
+    plt.scatter(my_positions[0,1],np.cos(my_positions[0,2]),s=50,c='g')
+    #annotate the last time step
+    plt.annotate(str(step),[my_positions[-1,1],np.cos(my_positions[-1,2])])
+    plt.scatter(my_positions[-1,1],np.cos(my_positions[-1,2]),s=50,c='g')
+    plt.xlabel(r'$Y$')
+    plt.ylabel(r'$cos(\theta)$')
+    fig1.tight_layout()
+    fig1.set_size_inches(7, 3.5)
 
     fig2 = plt.figure(dpi = dpivalue)
     #draw histodiagrams
@@ -180,6 +195,7 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
 #    print('nnnnnnn',n)
     plt.xlabel(r'$cos(\theta)$')
     plt.xlim(-1.1,1.1)
+    fig2.tight_layout()
     #plt.ylabel(r'$Probability$')
 
     '''
@@ -214,21 +230,8 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     plt.ylabel(r'$Y$')
     plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
                     wspace=0.3)
-
-    fig4 = plt.figure(dpi = dpivalue)
-    #draw particles and charges of the membrane
-    #draw the water's positions
-    plt.scatter(my_positions[:,1], np.cos(my_positions[:,2]),s=10)
-    #draw the water's velocity vector
-    #plt.quiver(my_positions[:,0], my_positions[:,1],my_velocities[:,0], my_velocities[:,1],alpha=.5)
-    #annotate the first time step
-    plt.annotate('1',[my_positions[0,1],np.cos(my_positions[0,2])])
-    plt.scatter(my_positions[0,1],np.cos(my_positions[0,2]),s=50,c='g')
-    #annotate the last time step
-    plt.annotate(str(step),[my_positions[-1,1],np.cos(my_positions[-1,2])])
-    plt.scatter(my_positions[-1,1],np.cos(my_positions[-1,2]),s=50,c='g')
-    plt.xlabel(r'$Y$')
-    plt.ylabel(r'$cos(\theta)$')
+    fig3.tight_layout()
+    fig3.set_size_inches(7, 3.5)
     plt.show()
     return 0
 
