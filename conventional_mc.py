@@ -198,8 +198,6 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     fig2.tight_layout()
     #plt.ylabel(r'$Probability$')
 
-
-
     fig3 = plt.figure(dpi = dpivalue)
     #draw trace
     plt.subplot(131)
@@ -296,7 +294,7 @@ def get_num_states_vs_time(temp_positions, threshold):
 
 def plot_num_states_vs_time(multiple_index_list, labels_list):
     for item_index, item_label in zip(multiple_index_list, labels_list):
-        plt.plot(item_index, range(len(item_index)), label=item_label)
+        plt.plot(item_index + [50000], range(len(item_index) + 1), label=item_label)
         plt.xlabel('time step')
         plt.ylabel('number of explored states')
     plt.legend()
