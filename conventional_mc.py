@@ -291,6 +291,28 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
         my_positions_list.append(np.concatenate(temp_pos_list).copy())
     return my_positions_list, weights_list, starting_configs_list
 
+from sklearn import cluster, preprocessing
+from sklearn.metrics.pairwise import euclidean_distances
+def get_num_states_vs_time(temp_positions, threshold):
+    min_max_scaler = preprocessing.MinMaxScaler()
+    temp_positions[:, 2] = np.cos(temp_positions[:, 2])
+    temp_positions = min_max_scaler.fit_transform(temp_positions)
+    explored_states_list, index_list = [temp_positions[0]], [0]
+    for index, item in enumerate(temp_positions[1:]):
+        distances_to_previous_explore_states = euclidean_distances([item], explored_states_list).flatten()
+        if np.all(distances_to_previous_explore_states > threshold):
+            explored_states_list.append(item)
+            index_list.append(index + 1)
+    return explored_states_list, index_list
+
+def plot_num_states_vs_time(multiple_index_list, labels_list):
+    for item_index, item_label in zip(multiple_index_list, labels_list):
+        plt.plot(item_index, range(len(item_index)), label=item_label)
+        plt.xlabel('time step')
+        plt.ylabel('number of explored states')
+    plt.legend()
+    return
+
 def getNewPos(Pos,nbins=10,steps=1000):
     Pos = list(zip(*Pos)) #make it a list
     hist_matrix, edges = np.histogramdd(Pos, bins= nbins,normed=0) #hist 3D
