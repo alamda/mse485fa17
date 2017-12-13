@@ -198,40 +198,26 @@ def visual(coords_negative_particles,coords_particles,my_positions,my_velocities
     fig2.tight_layout()
     #plt.ylabel(r'$Probability$')
 
-    '''
-    plt.subplot(234)
-    plt.hist(my_velocities[:,0], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
-    plt.xlabel(r'$u$')
-    plt.ylabel(r'$Probability$')
-    plt.subplot(235)
-    plt.hist(my_velocities[:,1], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
-#    print('nnnnnnn',n)
-    plt.xlabel(r'$v$')
-    plt.ylabel(r'$Probability$')
-    plt.subplot(236)
-    plt.hist(my_velocities[:,2], 20, weights=1.0/step*np.ones(shape=(step,1)), alpha=0.5)
-#    print('nnnnnnn',n)
-    plt.xlabel(r'$\omega$')
-    plt.ylabel(r'$Probability$')
-    plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.4,
-                    wspace=0.7)
 
-    '''
 
     fig3 = plt.figure(dpi = dpivalue)
     #draw trace
-    plt.subplot(121)
+    plt.subplot(131)
     plt.plot(my_positions[:,0], alpha=0.5)
     plt.xlabel(r'$step$')
     plt.ylabel(r'$X$')
-    plt.subplot(122)
+    plt.subplot(132)
     plt.plot(my_positions[:,1], alpha=0.5)
     plt.xlabel(r'$step$')
     plt.ylabel(r'$Y$')
-    plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
-                    wspace=0.3)
+    plt.subplot(133)
+    plt.plot(np.cos(my_positions[:,2]), alpha=0.5)
+    plt.xlabel(r'$step$')
+    plt.ylabel(r'$cos(\theta)$')
+    # plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.3,
+    #                 wspace=0.3)
     fig3.tight_layout()
-    fig3.set_size_inches(7, 3.5)
+    fig3.set_size_inches(7, 2.5)
     plt.show()
     return 0
 
