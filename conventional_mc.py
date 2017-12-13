@@ -43,7 +43,7 @@ mass_vector = np.array([mass_water, mass_water, I_water])
 #######################################################################
 
 def init_config(temp_x=None, temp_y=None, temp_theta=None):
-    temp_x = np.random.uniform(low=0 * L_channel, high=0 * L_channel) if temp_x is None else temp_x
+    temp_x = np.random.uniform(low=0 * L_channel, high=0.1 * L_channel) if temp_x is None else temp_x
     temp_y = np.random.uniform(low=0.4 * R_channel, high=0.6 * R_channel) if temp_y is None else temp_y
     temp_theta = np.random.uniform(high= 2 * np.pi) if temp_theta is None else temp_theta
     v_x, v_y, omega = np.random.normal(scale=1.0, size=3)
@@ -269,7 +269,7 @@ def RL_simulation(init_simulation_steps = 1000, num_rounds=100, num_steps_each_r
     my_positions, _, _ = simulate(init_simulation_steps)
     my_positions_list.append(my_positions.copy())
     for item in range(num_rounds):
-        print (item)
+        # print (item)
         cluster_labels, cluster_centers = clustering(np.concatenate(my_positions_list, axis=0), num_clusters)
         starting_configs, weights = get_new_starting_configs(cluster_labels, cluster_centers,
             num_clusters_for_consideration)
